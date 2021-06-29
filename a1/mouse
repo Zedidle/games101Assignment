@@ -1,0 +1,74 @@
+#include "opencv2/core.hpp"
+#include <opencv2/core/utility.hpp>
+#include "opencv2/imgproc.hpp"
+#include "opencv2/calib3d.hpp"
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/videoio.hpp"
+#include "opencv2/highgui.hpp"
+ 
+#include<iostream>
+ 
+using namespace cv;
+using namespace std;
+ 
+void OnMouseAction(int event,int x,int y,int flags,void *ustc);  //鼠标回调事件函数
+int static times; //记录调用次数
+ 
+Mat  image;
+ 
+int main(int argc,char*argv[])
+{
+    image=imread("left01.jpg", IMREAD_GRAYSCALE);
+    imshow("image",image);
+    setMouseCallback("image",OnMouseAction);
+    waitKey();
+    system("pause");
+}
+ 
+//*******************************************************************//
+//鼠标回调函数
+ 
+void OnMouseAction(int event,int x,int y,int flags,void *ustc)
+{   
+    //cout<<"第 "<<times<<" 次回调鼠标事件"<<endl;
+ 
+    if(event==CV_EVENT_LBUTTONDOWN)
+    {
+        cout<<"触发左键按下事件"<<endl;
+        cout<<"location: "<<x<<", "<<y<<endl;
+ 
+        unsigned char* row_ptr = image.ptr<unsigned char> ( y );  // row_ptr是第y行的头指针
+        unsigned char* data_ptr = &row_ptr[ x*image.channels() ]; // data_ptr 指向待访问的像素数据
+        // 输出该像素的每个通道,如果是灰度图就只有一个通道
+        for ( int c = 0; c != image.channels(); c++ )
+        {
+            unsigned char data = data_ptr[c]; // data为I(x,y)第c个通道的值
+            cout << (int)data << endl;
+        }       
+    }
+    /*
+    if(event==CV_EVENT_MOUSEMOVE)
+    {
+        cout<<"触发鼠标移动事件"<<endl;
+    }
+    if(event==CV_EVENT_LBUTTONUP)
+    {
+        cout<<"触发左键抬起事件"<<endl;
+    }
+    if(event==CV_EVENT_RBUTTONDOWN)
+    {
+        cout<<"触发右键按下事件"<<endl;
+    }
+    if(event==CV_EVENT_RBUTTONUP)
+    {
+        cout<<"触发右键抬起事件"<<endl;
+    }
+    if(event==CV_EVENT_LBUTTONDBLCLK)
+    {
+        cout<<"触发左键双击事件"<<endl;
+    }
+    if(event==CV_EVENT_RBUTTONDBLCLK)
+    {
+        cout<<"触发右键双击事件"<<endl;
+    }*/
+}
