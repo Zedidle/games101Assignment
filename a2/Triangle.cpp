@@ -4,7 +4,10 @@
 
 #include "Triangle.hpp"
 #include <algorithm>
+#include "iostream"
+#include "math.h"
 #include <array>
+
 
 
 Triangle::Triangle() {

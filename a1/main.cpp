@@ -58,6 +58,7 @@ Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, f
 cv::Point previousPoint = cv::Point(0,0);
 void On_mouse(int event, int x, int y, int flags, void*)
 {
+    return;
 	if (event == cv::EVENT_MOUSEMOVE)
 	{
         if(previousPoint != cv::Point(0,0)){
@@ -104,7 +105,6 @@ int main(int argc, const char** argv)
     int key = 0;
     int frame_count = 0;
 
-
     if (command_line) {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
         r.set_model(get_model_matrix(angle));
@@ -120,6 +120,7 @@ int main(int argc, const char** argv)
         return 0;
     }
 
+
     while (key != 27) { // key == 27 => ESC
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
         
@@ -131,16 +132,14 @@ int main(int argc, const char** argv)
         r.set_model(get_model_matrix(angle));
         r.set_view(get_view_matrix(eye_pos));
         r.set_projection(get_projection_matrix(eye_forv, 16/9, 1, 100));
-
         r.draw(pos_id, ind_id, rst::Primitive::Triangle);
-
+        
         cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
         image.convertTo(image, CV_8UC3, 1.0f);
         cv::imshow("image", image);
-	    cv::setMouseCallback("image", On_mouse, 0);
+	    // cv::setMouseCallback("image", On_mouse, 0);
         key = cv::waitKey(1);
 
-        // std::cout << "frame count: " << frame_count++ << '\n';
         switch(key){
             case 'a': eye_pos.x() += 0.1; break;
             case 'd': eye_pos.x() -= 0.1; break;
@@ -148,7 +147,6 @@ int main(int argc, const char** argv)
             case 's': eye_pos.z() += 0.1; break;
             case 'q': eye_pos.y() += 0.1; break;
             case 'e': eye_pos.y() -= 0.1; break;
-            
         }
     }
 

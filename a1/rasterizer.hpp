@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <eigen3/Eigen/Eigen>
 using namespace Eigen;
+using namespace std;
 
 namespace rst {
     enum class Buffers
@@ -38,7 +39,7 @@ namespace rst {
     * For the curious : The draw function takes two buffer id's as its arguments.
     * These two structs make sure that if you mix up with their orders, the
     * compiler won't compile it. Aka : Type safety
-    * */
+    */
     struct pos_buf_id
     {
         int pos_id = 0;
@@ -54,22 +55,20 @@ namespace rst {
         public:
             rasterizer(int w, int h);
 
-
-            pos_buf_id load_positions(const std::vector<Eigen::Vector3f>& positions);
-            ind_buf_id load_indices(const std::vector<Eigen::Vector3i>& indices);
+            pos_buf_id load_positions(const vector<Eigen::Vector3f>& positions);
+            ind_buf_id load_indices(const vector<Eigen::Vector3i>& indices);
 
             void set_model(const Eigen::Matrix4f& m);
             void set_view(const Eigen::Matrix4f& v);
             void set_projection(const Eigen::Matrix4f& p);
 
-
             void clear(Buffers buff);
 
             void draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, Primitive type);
-            void drawTriangle(std::vector<Eigen::Vector3f>& buf, std::vector<Eigen::Vector3i>& ind);
-            void drawRectangle(std::vector<Eigen::Vector3f>& buf, std::vector<Eigen::Vector3i>& ind);
+            void drawTriangle(vector<Eigen::Vector3f>& buf, vector<Eigen::Vector3i>& ind);
+            void drawRectangle(vector<Eigen::Vector3f>& buf, vector<Eigen::Vector3i>& ind);
 
-            std::vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
+            vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
             
             void draw_line(Eigen::Vector3f begin, Eigen::Vector3f end);
 
@@ -81,11 +80,11 @@ namespace rst {
             Eigen::Matrix4f view;
             Eigen::Matrix4f projection;
 
-            std::map<int, std::vector<Eigen::Vector3f>> pos_buf;
-            std::map<int, std::vector<Eigen::Vector3i>> ind_buf;
+            map<int, vector<Eigen::Vector3f>> pos_buf;
+            map<int, vector<Eigen::Vector3i>> ind_buf;
 
-            std::vector<Eigen::Vector3f> frame_buf;
-            std::vector<float> depth_buf;
+            vector<Eigen::Vector3f> frame_buf;
+            vector<float> depth_buf;
             int get_index(int x, int y);
 
             int width, height;

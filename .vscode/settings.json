@@ -48,6 +48,11 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "eigen": "cpp"
+        "eigen": "cpp",
+        "chrono": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "ratio": "cpp",
+        "cinttypes": "cpp"
     }
 }

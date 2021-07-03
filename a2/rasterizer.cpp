@@ -9,6 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <math.h>
 
+using namespace std;
 
 rst::pos_buf_id rst::rasterizer::load_positions(const std::vector<Eigen::Vector3f> &positions)
 {
@@ -40,9 +41,19 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 }
 
 
+
 static bool insideTriangle(int x, int y, const Vector3f* _v)
 {   
+    // Vector3f* _v 是指三角形的三个顶点
     // TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
+    Vector3f line1 = _v[0] - _v[1];
+    Vector3f line2 = _v[1] - _v[2];
+    Vector3f line3 = _v[2] - _v[0];
+    Vector3f p1 = Vector3f(x, y, 0) - _v[1];
+    Vector3f p2 = Vector3f(x, y, 0) - _v[2];
+    Vector3f p3 = Vector3f(x, y, 0) - _v[0];
+    float z1 = line1.cross(p1).z(), z2 = line2.cross(p2).z(), z3 = line3.cross(p3).z();
+    return (z1 > 0 && z2 > 0 && z3 > 0) || (z1 < 0 && z2 < 0 && z3 < 0);
 }
 
 static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Vector3f* v)
@@ -102,20 +113,142 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
     }
 }
 
+void rst::rasterizer::draw_line(Eigen::Vector3f begin, Eigen::Vector3f end, Eigen::Vector3f line_color = {255, 255, 255})
+{
+    auto x1 = begin.x();
+    auto y1 = begin.y();
+    auto x2 = end.x();
+    auto y2 = end.y();
+
+    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
+
+    dx=x2-x1;
+    dy=y2-y1;
+    dx1=fabs(dx);
+    dy1=fabs(dy);
+    px=2*dy1-dx1;
+    py=2*dx1-dy1;
+
+    if(dy1<=dx1)
+    {
+        if(dx>=0)
+        {
+            x=x1;
+            y=y1;
+            xe=x2;
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            xe=x1;
+        }
+        Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+        set_pixel(point,line_color);
+        for(i=0;x<xe;i++)
+        {
+            x=x+1;
+            if(px<0)
+            {
+                px=px+2*dy1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    y=y+1;
+                }
+                else
+                {
+                    y=y-1;
+                }
+                px=px+2*(dy1-dx1);
+            }
+            Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+            set_pixel(point,line_color);
+        }
+    }
+    else
+    {
+        if(dy>=0)
+        {
+            x=x1;
+            y=y1;
+            ye=y2;
+        }
+        else
+        {
+            x=x2;
+            y=y2;
+            ye=y1;
+        }
+        Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+        set_pixel(point,line_color);
+        for(i=0;y<ye;i++)
+        {
+            y=y+1;
+            if(py<=0)
+            {
+                py=py+2*dx1;
+            }
+            else
+            {
+                if((dx<0 && dy<0) || (dx>0 && dy>0))
+                {
+                    x=x+1;
+                }
+                else
+                {
+                    x=x-1;
+                }
+                py=py+2*(dx1-dy1);
+            }
+            Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+            set_pixel(point,line_color);
+        }
+    }
+}
+
+
 //Screen space rasterization
 void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
-    
     // TODO : Find out the bounding box of current triangle.
+    // 在透视投影完了之后，三角形线框画好了，再拿顶点坐标来确定 2D的包围盒, 取决于摄像机的位置和视角；
+    // 也就是所需判断的x和y的范围；
+    // cout << "rasterize_triangle: " << endl;
+    // cout << t.a().transpose() << endl << t.b().transpose() << endl << t.c().transpose() <<endl;
+    bool bShowBB = false;
+    vector<Eigen::Vector3f> aabb = t.getAABB();
+    if(bShowBB){ // draw bounding box
+        for(int i=0; i<aabb.size()-1; i++){
+            draw_line(aabb[i], aabb[i+1], {100, 100, 100});
+        }
+        draw_line(aabb[aabb.size()-1], aabb[0], {100, 100, 100});
+    }
+    // draw traingle
+    // 不画线框，或者放在insideTriangle里判断，在线框上的点也画出来
+    // draw_line(t.a(), t.b(), t.getColor());
+    // draw_line(t.b(), t.c(), t.getColor());
+    // draw_line(t.c(), t.a(), t.getColor());
+
     // iterate through the pixel and find if the current pixel is inside the triangle
-
-    // If so, use the following code to get the interpolated z value.
-    //auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
-    //float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-    //float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-    //z_interpolated *= w_reciprocal;
-
-    // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
+    float minX = aabb[0][0], maxX=aabb[2][0], minY=aabb[0][1], maxY=aabb[2][1];
+    for(int x=minX; x < maxX; x++){
+        for(int y=minY; y<maxY; y++){
+            if(insideTriangle(x, y, t.v)){
+                // If so, use the following code to get the interpolated z value.
+                auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
+                float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                z_interpolated *= w_reciprocal;
+                int buf_index = y*width + x;
+                updateBuffer(buf_index, z_interpolated, t.getColor());
+                // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
+                set_pixel(Vector3f(x,y,1), frame_buffer()[buf_index]);
+            }
+        }
+    }
 }
 
 void rst::rasterizer::set_model(const Eigen::Matrix4f& m)

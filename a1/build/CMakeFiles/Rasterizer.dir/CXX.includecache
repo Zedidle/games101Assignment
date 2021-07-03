@@ -6,21 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/cs18/Desktop/Games101/Assignments/mylib.h
-cmath
--
-eigen3/Eigen/Core
--
-eigen3/Eigen/Dense
--
-iostream
--
-
-/home/cs18/Desktop/Games101/Assignments/p1/main.cpp
+/home/cs18/Desktop/Games101/Assignments/a1/main.cpp
 shapes/Triangle.hpp
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Triangle.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Triangle.hpp
 rasterizer.hpp
-/home/cs18/Desktop/Games101/Assignments/p1/rasterizer.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/rasterizer.hpp
 eigen3/Eigen/Eigen
 -
 iostream
@@ -30,11 +20,11 @@ opencv2/opencv.hpp
 ../mylib.h
 /home/cs18/Desktop/Games101/Assignments/mylib.h
 
-/home/cs18/Desktop/Games101/Assignments/p1/rasterizer.cpp
+/home/cs18/Desktop/Games101/Assignments/a1/rasterizer.cpp
 algorithm
 -
 rasterizer.hpp
-/home/cs18/Desktop/Games101/Assignments/p1/rasterizer.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/rasterizer.hpp
 opencv2/opencv.hpp
 -
 math.h
@@ -42,23 +32,23 @@ math.h
 stdexcept
 -
 
-/home/cs18/Desktop/Games101/Assignments/p1/rasterizer.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/rasterizer.hpp
 shapes/Triangle.hpp
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Triangle.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Triangle.hpp
 shapes/Rectangle.hpp
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Rectangle.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Rectangle.hpp
 algorithm
 -
 eigen3/Eigen/Eigen
 -
 
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Rectangle.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Rectangle.hpp
 eigen3/Eigen/Eigen
 -
 
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Triangle.cpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Triangle.cpp
 Triangle.hpp
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Triangle.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Triangle.hpp
 algorithm
 -
 array
@@ -66,8 +56,18 @@ array
 stdexcept
 -
 
-/home/cs18/Desktop/Games101/Assignments/p1/shapes/Triangle.hpp
+/home/cs18/Desktop/Games101/Assignments/a1/shapes/Triangle.hpp
 eigen3/Eigen/Eigen
+-
+
+/home/cs18/Desktop/Games101/Assignments/mylib.h
+cmath
+-
+eigen3/Eigen/Core
+-
+eigen3/Eigen/Dense
+-
+iostream
 -
 
 /usr/local/include/eigen3/Eigen/Cholesky
