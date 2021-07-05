@@ -6,6 +6,7 @@
 #define RASTERIZER_TRIANGLE_H
 
 #include <eigen3/Eigen/Eigen>
+#include <vector>
 using namespace std;
 using namespace Eigen;
 class Triangle{

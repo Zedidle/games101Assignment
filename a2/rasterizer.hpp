@@ -73,11 +73,12 @@ namespace rst
         void draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf_id col_buffer, Primitive type);
 
         std::vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
-        void updateBuffer(int buf_index, float z, Eigen::Vector3f color){
+        bool update_zbuf(int buf_index, float z){
             if(depth_buf[buf_index] > z){
-                depth_buf[buf_index] = z; 
-                frame_buf[buf_index] = color;
+                depth_buf[buf_index] = z;
+                return true;
             }
+            return false;
         };
 
 

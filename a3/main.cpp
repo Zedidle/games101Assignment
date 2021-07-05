@@ -7,6 +7,7 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "OBJ_Loader.h"
+#include "../mylib.h"
 
 Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
 {
@@ -50,7 +51,20 @@ Eigen::Matrix4f get_model_matrix(float angle)
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
 {
     // TODO: Use the same projection matrix from the previous assignments
+    float Tn = tan(mu::radian(eye_fov/2)) * zNear;
+    float Tf = tan(mu::radian(eye_fov/2)) * zFar;
+    float Rn = aspect_ratio * Tn;
+    float Rf = aspect_ratio * Tf;
 
+    Matrix4f M_ortho, M_persp2ortho;
+    Matrix4f M_ortho_zoom, M_ortho_translation; // Zoom, Translation
+    // Why this way is correct?
+    M_ortho_zoom << 1/Rn,0,0,0, 0,1/Tn,0,0, 0,0,1/zNear,0, 0,0,0,1;
+    M_ortho_translation << 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1;
+    M_ortho = M_ortho_zoom * M_ortho_translation;
+
+    M_persp2ortho << zNear,0,0,0,  0,zNear,0,0,  0,0,zNear+zFar,-zNear*zFar,  0,0,1,0;
+    return M_ortho * M_persp2ortho;
 }
 
 Eigen::Vector3f vertex_shader(const vertex_shader_payload& payload)

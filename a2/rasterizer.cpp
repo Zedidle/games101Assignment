@@ -78,16 +78,16 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
     {
         Triangle t;
         Eigen::Vector4f v[] = {
-                mvp * to_vec4(buf[i[0]], 1.0f),
-                mvp * to_vec4(buf[i[1]], 1.0f),
-                mvp * to_vec4(buf[i[2]], 1.0f)
+            mvp * to_vec4(buf[i[0]], 1.0f),
+            mvp * to_vec4(buf[i[1]], 1.0f),
+            mvp * to_vec4(buf[i[2]], 1.0f)
         };
         //Homogeneous division
         for (auto& vec : v) {
             vec /= vec.w();
         }
         //Viewport transformation
-        for (auto & vert : v)
+        for (auto& vert : v)
         {
             vert.x() = 0.5*width*(vert.x()+1.0);
             vert.y() = 0.5*height*(vert.y()+1.0);
@@ -242,10 +242,11 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                 float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                 z_interpolated *= w_reciprocal;
+
                 int buf_index = y*width + x;
-                updateBuffer(buf_index, z_interpolated, t.getColor());
-                // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
-                set_pixel(Vector3f(x,y,1), frame_buffer()[buf_index]);
+                if (update_zbuf(buf_index, z_interpolated)){
+                    set_pixel(Vector3f(x,y,1), t.getColor());
+                }
             }
         }
     }

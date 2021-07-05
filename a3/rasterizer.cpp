@@ -4,9 +4,12 @@
 
 #include <algorithm>
 #include "rasterizer.hpp"
+#include <vector>
+
 #include <opencv2/opencv.hpp>
 #include <math.h>
 
+using namespace std;
 
 rst::pos_buf_id rst::rasterizer::load_positions(const std::vector<Eigen::Vector3f> &positions)
 {
@@ -264,16 +267,40 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     //    * v[i].w() is the vertex view space depth value z.
     //    * Z is interpolated view space depth for the current pixel
     //    * zp is depth between zNear and zFar, used for z-buffer
+    auto v = t.toVector4();
+    vector<Eigen::Vector3f> aabb = t.getAABB();
+    float minX = aabb[0][0], maxX=aabb[2][0], minY=aabb[0][1], maxY=aabb[2][1];
+    for(int x=minX; x < maxX; x++){
+        for(int y=minY; y<maxY; y++){
+            if(insideTriangle(x, y, t.v)){
+                // If so, use the following code to get the interpolated z value.
+                auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
+                float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                z_interpolated *= w_reciprocal;
+
+                int buf_index = y*width + x;
+                if (update_zbuf(buf_index, z_interpolated)){
+                    set_pixel(Vector3f(x,y,1), t.getColor());
+                }
+            }
+        }
+    }
+
 
     // float Z = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
     // float zp = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
     // zp *= Z;
+
+
 
     // TODO: Interpolate the attributes:
     // auto interpolated_color
     // auto interpolated_normal
     // auto interpolated_texcoords
     // auto interpolated_shadingcoords
+
+
 
     // Use: fragment_shader_payload payload( interpolated_color, interpolated_normal.normalized(), interpolated_texcoords, texture ? &*texture : nullptr);
     // Use: payload.view_pos = interpolated_shadingcoords;

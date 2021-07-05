@@ -12,6 +12,7 @@
 #include "Triangle.hpp"
 
 using namespace Eigen;
+using namespace std;
 
 namespace rst
 {
@@ -83,6 +84,13 @@ namespace rst
         void draw(std::vector<Triangle *> &TriangleList);
 
         std::vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
+        bool update_zbuf(int buf_index, float z){
+            if(depth_buf[buf_index] > z){
+                depth_buf[buf_index] = z;
+                return true;
+            }
+            return false;
+        };
 
     private:
         void draw_line(Eigen::Vector3f begin, Eigen::Vector3f end);
