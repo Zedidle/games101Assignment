@@ -73,6 +73,8 @@ OBJ_Loader.h
 /home/cs18/Desktop/Games101/Assignments/a3/OBJ_Loader.h
 ../mylib.h
 /home/cs18/Desktop/Games101/Assignments/mylib.h
+math.h
+/home/cs18/Desktop/Games101/Assignments/a3/math.h
 
 /home/cs18/Desktop/Games101/Assignments/a3/rasterizer.cpp
 algorithm

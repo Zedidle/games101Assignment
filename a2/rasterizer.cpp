@@ -243,8 +243,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                 z_interpolated *= w_reciprocal;
 
-                int buf_index = y*width + x;
-                if (update_zbuf(buf_index, z_interpolated)){
+                if (update_zbuf(get_index(x, y), z_interpolated)){
                     set_pixel(Vector3f(x,y,1), t.getColor());
                 }
             }

@@ -53,6 +53,7 @@
         "numeric": "cpp",
         "random": "cpp",
         "ratio": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "core": "cpp"
     }
 }

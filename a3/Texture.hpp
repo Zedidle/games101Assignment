@@ -30,5 +30,11 @@ public:
         return Eigen::Vector3f(color[0], color[1], color[2]);
     }
 
+    float getGrayColor(float u, float v){
+        Eigen::Vector3f color = getColor(u, v);
+        return color[0] * 0.2126 + color[1] * 0.7152 + color[2] * 0.0722;
+    }
+
+
 };
 #endif //RASTERIZER_TEXTURE_H

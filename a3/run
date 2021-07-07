@@ -2,4 +2,4 @@ mkdir build
 cd build
 cmake ..
 make -j4
-sudo ./Rasterizer
+sudo ./Rasterizer ../results/displacement.jpg displacement

@@ -53,7 +53,7 @@ void ExampleVector(){
     // vector output
     // cout << v << endl;
     // v.normalize();
-    // cout << w.norm() << endl;
+    cout << w.norm() << endl; // 求长度
     // cout << v.squaredNorm() << endl;
     // cout << v.normalized() << endl;
     // cout << v.transpose() << endl;

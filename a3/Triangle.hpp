@@ -18,8 +18,8 @@ public:
     Vector4f v[3]; /*the original coordinates of the triangle, v0, v1, v2 in counter clockwise order*/
     /*Per vertex values*/
     Vector3f color[3]; //color at each vertex;
-    Vector2f tex_coords[3]; //texture u,v
     Vector3f normal[3]; //normal vector for each vertex
+    Vector2f tex_coords[3]; //texture u,v
 
     Texture *tex= nullptr;
     Triangle();
@@ -51,6 +51,18 @@ public:
         aabb[3] = Eigen::Vector3f(maxX, minY, 1);
         return aabb;
     };
+    Eigen::Vector4f getBarycentricVertexCoord() const{
+        return v[0]/3 + v[1]/3 + v[2]/3;
+    }
+    Eigen::Vector3f getBarycentricNormal() const{
+        return normal[0]/3 + normal[1]/3 + normal[2]/3;
+    }
+    Eigen::Vector3f getBarycentricColor() const{
+        return color[0]/3 + color[1]/3 + color[2]/3;
+    }
+    Eigen::Vector2f getBarycentricTexCoord() const{
+        return tex_coords[0]/3 + tex_coords[1]/3 + tex_coords[2]/3;
+    }
 };
 
 

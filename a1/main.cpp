@@ -19,7 +19,10 @@ Matrix4f get_view_matrix(Vector3f eye_pos)
     RotationY << cos(b),0,sin(b),0,  0,1,0,0,  -sin(b),0,cos(b),0,  0,0,0,1;
     M_VIEW_ROTATION = RotationX * RotationY * M_VIEW_ROTATION;
     Matrix4f translate;
-    translate << 1,0,0,-eye_pos[0],  0,1,0,-eye_pos[1],  0,0,1,-eye_pos[2],  0,0,0,1;
+    translate << 1,0,0,-eye_pos[0],  
+                 0,1,0,-eye_pos[1],  
+                 0,0,1,-eye_pos[2],  
+                 0,0,0,1;
     return M_VIEW_ROTATION * translate;
 }
 
