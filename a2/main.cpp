@@ -41,9 +41,9 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
     float Rf = aspect_ratio * Tf;
 
     Matrix4f M_ortho, M_persp2ortho;
-    Matrix4f M_ortho_zoom, M_ortho_translation; // Zoom, Translation
+    Matrix4f M_ortho_zoom, M_ortho_translation;
     // Why this way is correct?
-    M_ortho_zoom << 1/Rn,0,0,0, 0,1/Tn,0,0, 0,0,1/zNear,0, 0,0,0,1;
+    M_ortho_zoom << 1/Rn,0,0,0, 0,1/Tn,0,0, 0,0,1/zNear,0, 0,0,0,-1;
     M_ortho_translation << 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1;
     M_ortho = M_ortho_zoom * M_ortho_translation;
 

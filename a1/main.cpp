@@ -19,9 +19,9 @@ Matrix4f get_view_matrix(Vector3f eye_pos)
     RotationY << cos(b),0,sin(b),0,  0,1,0,0,  -sin(b),0,cos(b),0,  0,0,0,1;
     M_VIEW_ROTATION = RotationX * RotationY * M_VIEW_ROTATION;
     Matrix4f translate;
-    translate << 1,0,0,-eye_pos[0],  
-                 0,1,0,-eye_pos[1],  
-                 0,0,1,-eye_pos[2],  
+    translate << 1,0,0,-eye_pos[0], 
+                 0,1,0,-eye_pos[1], 
+                 0,0,1,-eye_pos[2], 
                  0,0,0,1;
     return M_VIEW_ROTATION * translate;
 }
@@ -42,6 +42,7 @@ Matrix4f get_model_matrix(float rotation_angle)
 
 Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
 {
+
     float Tn = tan(mu::radian(eye_fov/2)) * zNear;
     float Tf = tan(mu::radian(eye_fov/2)) * zFar;
     float Rn = aspect_ratio * Tn;
