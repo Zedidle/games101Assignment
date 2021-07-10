@@ -21,8 +21,8 @@ void ExampleMatrix();
 int main(){
 
     // ExampleCpp();
-    // ExampleVector();
-    ExampleMatrix();
+    ExampleVector();
+    // ExampleMatrix();
 
     return 0;
 }
@@ -47,8 +47,12 @@ void ExampleVector(){
     // Vector3f w(sqrt(3),1.0f,0.0f);
     // Vector3f w(1.0f, sqrt(2) / sqrt(3), 1.0f);
     // Vector3f w(0.0f,1.0f,0.0f);
-    Vector3f w(1.0f,-1.0f,0.0f);  
+    Vector3f w(1.0f,-1.0f,10.0f);  
     // cout << v.cross(w) << endl;
+
+    // cout << "v.norm() * v.norm(): " << v.norm() * v.norm() << endl;
+    // cout << "v.dot(v): " << v.dot(v) << endl;
+
 
     // vector output
     // cout << v << endl;
@@ -57,6 +61,8 @@ void ExampleVector(){
     // cout << v.squaredNorm() << endl;
     // cout << v.normalized() << endl;
     // cout << v.transpose() << endl;
+
+    cout << "v.cwiseProduct(w):" << v.cwiseProduct(w).transpose() << endl;
 
     // vector add
     // cout << "Example of add \n";

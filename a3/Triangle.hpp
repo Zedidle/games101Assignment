@@ -51,17 +51,23 @@ public:
         aabb[3] = Eigen::Vector3f(maxX, minY, 1);
         return aabb;
     };
-    Eigen::Vector4f getBarycentricVertexCoord() const{
-        return v[0]/3 + v[1]/3 + v[2]/3;
+    Eigen::Vector4f getBarycentricVertexCoord(float alpha, float bate, float gamma) const{
+        // return v[0]/3 + v[1]/3 + v[2]/3;
+        return v[0]*alpha + v[1]*bate + v[2]*gamma;
     }
-    Eigen::Vector3f getBarycentricNormal() const{
-        return normal[0]/3 + normal[1]/3 + normal[2]/3;
+    Eigen::Vector3f getBarycentricNormal(float alpha, float bate, float gamma) const{
+        // return normal[0];
+        // return normal[0]/3 + normal[1]/3 + normal[2]/3;
+        return normal[0] * alpha + normal[1] * bate + normal[2] * gamma;
     }
-    Eigen::Vector3f getBarycentricColor() const{
-        return color[0]/3 + color[1]/3 + color[2]/3;
+    Eigen::Vector3f getBarycentricColor(float alpha, float bate, float gamma) const{
+        // return color[0];
+        // return color[0]/3 + color[1]/3 + color[2]/3;
+        return color[0] * alpha + color[1] * bate + color[2] * gamma;
     }
-    Eigen::Vector2f getBarycentricTexCoord() const{
-        return tex_coords[0]/3 + tex_coords[1]/3 + tex_coords[2]/3;
+    Eigen::Vector2f getBarycentricTexCoord(float alpha, float bate, float gamma) const{
+        // return tex_coords[0]/3 + tex_coords[1]/3 + tex_coords[2]/3;
+        return tex_coords[0] * alpha + tex_coords[1] * bate + tex_coords[2] * gamma;
     }
 };
 

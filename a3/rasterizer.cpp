@@ -278,18 +278,17 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                 z_interpolated *= w_reciprocal;
 
-                // TODO: Interpolate the attributes:
-                auto interpolated_color = t.getBarycentricColor();
-                auto interpolated_normal = t.getBarycentricNormal();
-                auto interpolated_texcoords = t.getBarycentricTexCoord();
-                auto interpolated_shadingcoords = Eigen::Vector3f(x, y, z_interpolated); // 这个Z有问题?
-
-                fragment_shader_payload payload(interpolated_color, interpolated_normal.normalized(),
-                                                interpolated_texcoords, texture ? &*texture : nullptr);
-                payload.view_pos = interpolated_shadingcoords;
-
                 if (update_zbuf(get_index(x, y), z_interpolated)){
-                    // Use: Instead of passing the triangle's color directly to the frame buffer, pass the color to the shaders first to get the final color;
+                    auto interpolated_color = t.getBarycentricColor(alpha, beta, gamma);
+                    auto interpolated_normal = t.getBarycentricNormal(alpha, beta, gamma).normalized();
+                    auto interpolated_texcoords = t.getBarycentricTexCoord(alpha, beta, gamma);
+                    auto i_scoords = interpolate(alpha, beta, gamma, view_pos[0], view_pos[1], view_pos[2], 1);
+                    
+                    fragment_shader_payload payload(interpolated_color, interpolated_normal.normalized(),
+                                                    interpolated_texcoords, texture ? &*texture : nullptr);
+                    // payload.view_pos = Vector3f(i_scoords[0]/i_scoords[3], i_scoords[1]/i_scoords[3], i_scoords[2]/i_scoords[3]);
+                    payload.view_pos = i_scoords;
+
                     auto pixel_color = fragment_shader(payload);
                     set_pixel(Vector2i(x,y), pixel_color);
                 }

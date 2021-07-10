@@ -2,4 +2,11 @@ mkdir build
 cd build
 cmake ..
 make -j4
-sudo ./Rasterizer ../results/displacement.jpg displacement
+
+
+#sudo ./Rasterizer
+#sudo ./Rasterizer ../images/cow/texture.jpg texture
+#sudo ./Rasterizer ../images/cow/texture.jpg all
+#sudo ./Rasterizer ../images/cube/ all
+#sudo ./Rasterizer ../images/Crate/ all
+sudo ./Rasterizer ../images/bunny/ all
