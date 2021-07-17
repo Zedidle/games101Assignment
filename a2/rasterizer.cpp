@@ -42,7 +42,7 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 
 
 
-static bool insideTriangle(int x, int y, const Vector3f* _v)
+static bool insideTriangle(float x, float y, const Vector3f* _v)
 {   
     // Vector3f* _v 是指三角形的三个顶点
     // TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
@@ -232,21 +232,38 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     // draw_line(t.b(), t.c(), t.getColor());
     // draw_line(t.c(), t.a(), t.getColor());
 
+    int aa_rate = 2;
+    float step = 1.0f/aa_rate;
+    bool ssaa_on = false;
+
     // iterate through the pixel and find if the current pixel is inside the triangle
     float minX = aabb[0][0], maxX=aabb[2][0], minY=aabb[0][1], maxY=aabb[2][1];
     for(int x=minX; x < maxX; x++){
         for(int y=minY; y<maxY; y++){
-            if(insideTriangle(x, y, t.v)){
-                // If so, use the following code to get the interpolated z value.
-                auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
+            if(insideTriangle(x+0.5, y+0.5, t.v)){
+                auto[alpha, beta, gamma] = computeBarycentric2D(x+0.5, y+0.5, t.v);
                 float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
                 float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
                 z_interpolated *= w_reciprocal;
 
                 if (update_zbuf(get_index(x, y), z_interpolated)){
-                    set_pixel(Vector3f(x,y,1), t.getColor());
+                    if(ssaa_on){
+                        Vector3f color = Vector3f(0, 0, 0);
+                        for(float i=x+step/2; i<x+1; i+=step){
+                            for(float j=y+step/2; j<y+1; j+=step){
+                                if(insideTriangle(i, j, t.v)){
+                                    auto[alpha, beta, gamma] = computeBarycentric2D(i, j, t.v);
+                                    color += step * step * t.getColor(alpha, beta, gamma);
+                                }
+                            }
+                        }
+                        set_pixel(Vector3f(x,y,1), color);
+                    }else{
+                        set_pixel(Vector3f(x,y,1), t.getColor(alpha, beta, gamma));
+                    }
                 }
             }
+
         }
     }
 }
