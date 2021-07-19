@@ -11,6 +11,24 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f
     // that's specified bt v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
     // Also don't forget to update tnear, u and v.
+    Vector3f E1 = v1 - v0;
+    Vector3f E2 = v2 - v0;
+    Vector3f S = orig - v0;
+    Vector3f S1 = crossProduct(dir, E2);
+    Vector3f S2 = crossProduct(S, E1);
+
+    float w = dotProduct(S1, E1);
+    float t = dotProduct(S2, E2) / w;
+    float b1 = dotProduct(S1, S) / w;
+    float b2 = dotProduct(S2, dir) / w;
+
+    if(t>0 && b1>0 && b2 > 0 && (1 - b1 - b2) > 0 ){
+        tnear = t;
+        u = b1;
+        v = b2;
+        return true;
+    }
+
     return false;
 }
 
@@ -33,8 +51,8 @@ public:
         memcpy(stCoordinates.get(), st, sizeof(Vector2f) * maxIndex);
     }
 
-    bool intersect(const Vector3f& orig, const Vector3f& dir, float& tnear, uint32_t& index,
-                   Vector2f& uv) const override
+    bool intersect(const Vector3f& orig, const Vector3f& dir, float& tnear, 
+                    uint32_t& index, Vector2f& uv) const override
     {
         bool intersect = false;
         for (uint32_t k = 0; k < numTriangles; ++k)
@@ -56,7 +74,8 @@ public:
         return intersect;
     }
 
-    void getSurfaceProperties(const Vector3f&, const Vector3f&, const uint32_t& index, const Vector2f& uv, Vector3f& N,
+    void getSurfaceProperties(const Vector3f&, const Vector3f&, const uint32_t& index, 
+                                const Vector2f& uv, Vector3f& N,
                               Vector2f& st) const override
     {
         const Vector3f& v0 = vertices[vertexIndex[index * 3]];
