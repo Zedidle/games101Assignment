@@ -9,32 +9,28 @@ BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
 {
     time_t start, stop;
     time(&start);
-    if (primitives.empty())
-        return;
-
+    if (primitives.empty()) return;        
     root = recursiveBuild(primitives);
-
     time(&stop);
+
+
     double diff = difftime(stop, start);
     int hrs = (int)diff / 3600;
     int mins = ((int)diff / 60) - (hrs * 60);
     int secs = (int)diff - (hrs * 3600) - (mins * 60);
-
-    printf(
-        "\rBVH Generation complete: \nTime Taken: %i hrs, %i mins, %i secs\n\n",
-        hrs, mins, secs);
+    printf("\rBVH Generation complete: \nTime Taken: %i hrs, %i mins, %i secs\n\n", hrs, mins, secs);
 }
 
-BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
-{
+// 构建空间
+BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects){
     BVHBuildNode* node = new BVHBuildNode();
 
     // Compute bounds of all primitives in BVH node
     Bounds3 bounds;
     for (int i = 0; i < objects.size(); ++i)
         bounds = Union(bounds, objects[i]->getBounds());
+    
     if (objects.size() == 1) {
-        // Create leaf _BVHBuildNode_
         node->bounds = objects[0]->getBounds();
         node->object = objects[0];
         node->left = nullptr;
@@ -105,5 +101,21 @@ Intersection BVHAccel::Intersect(const Ray& ray) const
 Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     // TODO Traverse the BVH to find intersection
+    Intersection inter;
+    std::array<int ,3> dirisNeg = {
+        int(ray.direction.x > 0), 
+        int(ray.direction.y>0), 
+        int(ray.direction.z > 0)
+    };
+    if(!node->bounds.IntersectP(ray, ray.direction_inv, dirisNeg)){
+        return inter;
+    }
+    if(node->left == nullptr && node->right == nullptr){
+        return node->object->getIntersection(ray);
+    }
+    
+    Intersection hit1  = getIntersection(node->left, ray);
+    Intersection hit2  = getIntersection(node->right, ray);
 
+    return (hit1.distance < hit2.distance) ? hit1 : hit2;
 }

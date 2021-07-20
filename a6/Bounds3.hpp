@@ -8,6 +8,10 @@
 #include "Vector.hpp"
 #include <limits>
 #include <array>
+#include "math.h"
+
+using namespace std;
+
 
 class Bounds3
 {
@@ -15,8 +19,8 @@ class Bounds3
     Vector3f pMin, pMax; // two points to specify the bounding box
     Bounds3()
     {
-        double minNum = std::numeric_limits<double>::lowest();
-        double maxNum = std::numeric_limits<double>::max();
+        double minNum = numeric_limits<double>::lowest();
+        double maxNum = numeric_limits<double>::max();
         pMax = Vector3f(minNum, minNum, minNum);
         pMin = Vector3f(maxNum, maxNum, maxNum);
     }
@@ -85,18 +89,30 @@ class Bounds3
     }
 
     inline bool IntersectP(const Ray& ray, const Vector3f& invDir,
-                           const std::array<int, 3>& dirisNeg) const;
+                           const array<int, 3>& dirisNeg) const;
 };
 
 
 
 inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
-                                const std::array<int, 3>& dirIsNeg) const
+                                const array<int, 3>& dirIsNeg) const
 {
-    // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
+    // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster than Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
-    
+    const auto& origin = ray.origin;
+    float tEnter = -numeric_limits<float>::infinity();
+    float tExit = numeric_limits<float>::infinity();
+    for(int i=0; i<3; i++){
+        float min = (pMin[i] - origin[i] * invDir[i]);
+        float max = (pMax[i] - origin[i] * invDir[i]);
+        if(!dirIsNeg[i]){
+            swap(min, max);
+        }
+        tEnter = std::max(min, tEnter);
+        tExit = std::min(max, tEnter);
+    }
+    return tEnter < tExit && tExit >= 0;
 }
 
 inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)

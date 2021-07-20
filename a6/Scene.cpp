@@ -10,6 +10,16 @@ void Scene::buildBVH() {
     this->bvh = new BVHAccel(objects, 1, BVHAccel::SplitMethod::NAIVE);
 }
 
+void Scene::travelBVH(BVHBuildNode* node){
+    cout << "Scene::travelBVH " << endl;
+    if(node->left == nullptr && node->right == nullptr){
+        cout << node->bounds.pMin << "      " << node->bounds.pMax << endl<<endl;;
+        return;
+    }
+    travelBVH(node->left);
+    travelBVH(node->right);
+}
+
 Intersection Scene::intersect(const Ray &ray) const
 {
     return this->bvh->Intersect(ray);
@@ -50,8 +60,8 @@ bool Scene::trace(
 //
 // If the surface is duffuse/glossy we use the Phong illumation model to compute the color
 // at the intersection point.
-Vector3f Scene::castRay(const Ray &ray, int depth) const
-{
+Vector3f Scene::castRay(const Ray &ray, int depth) const{
+
     if (depth > this->maxDepth) {
         return Vector3f(0.0,0.0,0.0);
     }
@@ -59,16 +69,16 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
     Material *m = intersection.m;
     Object *hitObject = intersection.obj;
     Vector3f hitColor = this->backgroundColor;
-//    float tnear = kInfinity;
+
     Vector2f uv;
     uint32_t index = 0;
     if(intersection.happened) {
-
+        cout << "intersection.happened" << endl;
         Vector3f hitPoint = intersection.coords;
         Vector3f N = intersection.normal; // normal
         Vector2f st; // st coordinates
         hitObject->getSurfaceProperties(hitPoint, ray.direction, index, uv, N, st);
-//        Vector3f tmp = hitPoint;
+
         switch (m->getType()) {
             case REFLECTION_AND_REFRACTION:
             {
