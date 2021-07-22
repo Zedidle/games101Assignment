@@ -11,6 +11,8 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f
     // that's specified bt v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
     // Also don't forget to update tnear, u and v.
+
+    // MT算法
     Vector3f E1 = v1 - v0;
     Vector3f E2 = v2 - v0;
     Vector3f S = orig - v0;
@@ -22,7 +24,7 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f
     float b1 = dotProduct(S1, S) / w;
     float b2 = dotProduct(S2, dir) / w;
 
-    if(t>0 && b1>0 && b2 > 0 && (1 - b1 - b2) > 0 ){
+    if(t>0 && b1 > 0 && b2 > 0 && b1 + b2 < 1 ){
         tnear = t;
         u = b1;
         v = b2;
@@ -51,12 +53,16 @@ public:
         memcpy(stCoordinates.get(), st, sizeof(Vector2f) * maxIndex);
     }
 
+    // 求光线与三角形内的交点
     bool intersect(const Vector3f& orig, const Vector3f& dir, float& tnear, 
                     uint32_t& index, Vector2f& uv) const override
     {
         bool intersect = false;
-        for (uint32_t k = 0; k < numTriangles; ++k)
+        // numTriangles对应着三角形数量
+        for (uint32_t k = 0; k < numTriangles; ++k) 
         {
+            // 由于vertexIndex存储顶点下标的转换；
+            // vertices 存储着顶点坐标；
             const Vector3f& v0 = vertices[vertexIndex[k * 3]];
             const Vector3f& v1 = vertices[vertexIndex[k * 3 + 1]];
             const Vector3f& v2 = vertices[vertexIndex[k * 3 + 2]];
@@ -70,25 +76,26 @@ public:
                 intersect |= true;
             }
         }
-
         return intersect;
     }
 
+
     void getSurfaceProperties(const Vector3f&, const Vector3f&, const uint32_t& index, 
-                                const Vector2f& uv, Vector3f& N,
-                              Vector2f& st) const override
+                                const Vector2f& uv, Vector3f& N, Vector2f& st) const override
     {
         const Vector3f& v0 = vertices[vertexIndex[index * 3]];
         const Vector3f& v1 = vertices[vertexIndex[index * 3 + 1]];
         const Vector3f& v2 = vertices[vertexIndex[index * 3 + 2]];
         Vector3f e0 = normalize(v1 - v0);
         Vector3f e1 = normalize(v2 - v1);
-        N = normalize(crossProduct(e0, e1));
+        N = normalize(crossProduct(e0, e1)); // 法线
+
         const Vector2f& st0 = stCoordinates[vertexIndex[index * 3]];
         const Vector2f& st1 = stCoordinates[vertexIndex[index * 3 + 1]];
         const Vector2f& st2 = stCoordinates[vertexIndex[index * 3 + 2]];
-        st = st0 * (1 - uv.x - uv.y) + st1 * uv.x + st2 * uv.y;
+        st = st0 * (1 - uv.x - uv.y) + st1 * uv.x + st2 * uv.y; // 重心坐标；
     }
+
 
     Vector3f evalDiffuseColor(const Vector2f& st) const override
     {

@@ -37,15 +37,12 @@ Vector3f refract(const Vector3f &I, const Vector3f &N, const float &ior)
     return k < 0 ? 0 : eta * I + (eta * cosi - sqrtf(k)) * n;
 }
 
-// [comment]
+// [comment] 曲面光线聚焦效果
 // Compute Fresnel equation
-//
 // \param I is the incident view direction
-//
 // \param N is the normal at the intersection point
-//
 // \param ior is the material refractive index
-// [/comment]
+// [/comment] 
 float fresnel(const Vector3f &I, const Vector3f &N, const float &ior)
 {
     float cosi = clamp(-1, 1, dotProduct(I, N));
@@ -81,9 +78,8 @@ float fresnel(const Vector3f &I, const Vector3f &N, const float &ior)
 // \param isShadowRay is it a shadow ray. We can return from the function sooner as soon as we have found a hit.
 // [/comment]
 std::optional<hit_payload> trace(
-        const Vector3f &orig, const Vector3f &dir,
-        const std::vector<std::unique_ptr<Object> > &objects)
-{
+    const Vector3f &orig, const Vector3f &dir, const std::vector<std::unique_ptr<Object>> &objects
+){
     float tNear = kInfinity;
     std::optional<hit_payload> payload;
     for (const auto & object : objects)
@@ -121,36 +117,44 @@ std::optional<hit_payload> trace(
 // If the surface is diffuse/glossy we use the Phong illumation model to compute the color
 // at the intersection point.
 // [/comment]
-Vector3f castRay(
-        const Vector3f &orig, const Vector3f &dir, const Scene& scene,
-        int depth)
-{
+// 只针对屏幕一个像素，而且只需考虑Primary Ray;
+Vector3f castRay(const Vector3f &orig, const Vector3f &dir, const Scene& scene, int depth){
     if (depth > scene.maxDepth) {
         return Vector3f(0.0,0.0,0.0);
     }
 
     Vector3f hitColor = scene.backgroundColor;
-    if (auto payload = trace(orig, dir, scene.get_objects()); payload)
-    {
+
+    if (auto payload = trace(orig, dir, scene.get_objects()); payload){
         Vector3f hitPoint = orig + dir * payload->tNear;
         Vector3f N; // normal
         Vector2f st; // st coordinates
         payload->hit_obj->getSurfaceProperties(hitPoint, dir, payload->index, payload->uv, N, st);
-        switch (payload->hit_obj->materialType) {
+
+        switch (payload->hit_obj->materialType) { // 选择渲染方式
             case REFLECTION_AND_REFRACTION:
             {
+                // 需要搞明白反射和折射的方向和源点是如何计算的！
+                // 包括 reflect 和 refract 这两个函数
+
+                // 反射方向
                 Vector3f reflectionDirection = normalize(reflect(dir, N));
+                // 折射方向
                 Vector3f refractionDirection = normalize(refract(dir, N, payload->hit_obj->ior));
+
+                // 反射源点
                 Vector3f reflectionRayOrig = (dotProduct(reflectionDirection, N) < 0) ?
                                              hitPoint - N * scene.epsilon :
                                              hitPoint + N * scene.epsilon;
+                // 折射源点
                 Vector3f refractionRayOrig = (dotProduct(refractionDirection, N) < 0) ?
                                              hitPoint - N * scene.epsilon :
                                              hitPoint + N * scene.epsilon;
+
                 Vector3f reflectionColor = castRay(reflectionRayOrig, reflectionDirection, scene, depth + 1);
                 Vector3f refractionColor = castRay(refractionRayOrig, refractionDirection, scene, depth + 1);
                 float kr = fresnel(dir, N, payload->hit_obj->ior);
-                hitColor = reflectionColor * kr + refractionColor * (1 - kr);
+                hitColor = reflectionColor * kr + refractionColor * (1 - kr); // 叠加
                 break;
             }
             case REFLECTION:
@@ -177,6 +181,8 @@ Vector3f castRay(
                 // Loop over all lights in the scene and sum their contribution up
                 // We also apply the lambert cosine law
                 // [/comment]
+                
+                // 之后最后找到光源，用Phong模型（也就是不需要环境光的模型，环境光被光线追踪取代了）
                 for (auto& light : scene.get_lights()) {
                     Vector3f lightDir = light->position - hitPoint;
                     // square of the distance between hitPoint and the light
@@ -212,8 +218,10 @@ void Renderer::Render(const Scene& scene)
 {
     std::vector<Vector3f> framebuffer(scene.width * scene.height);
 
-    float scale = std::tan(deg2rad(scene.fov * 0.5f));
-    float imageAspectRatio = scene.width / (float)scene.height;
+
+    // 求出相机投影的关键因素
+    float T_eyefor = tan(deg2rad(scene.fov * 0.5f)); // 视距：从视锥角和视高得出视距；
+    float imageAspectRatio = scene.width / (float)scene.height; // 宽高比，非必须；
 
     // Use this variable as the eye position to start your rays.
     Vector3f eye_pos(0);
@@ -223,17 +231,21 @@ void Renderer::Render(const Scene& scene)
         for (int i = 0; i < scene.width; ++i)
         {
             // generate primary ray direction
-            float x;
-            float y;
             // TODO: Find the x and y positions of the current pixel to get the direction
             // vector that passes through it.
             // Also, don't forget to multiply both of them with the variable *scale*, and
             // x (horizontal) variable with the *imageAspectRatio*
-            x = imageAspectRatio * (2*float(i+0.5f) / (float)scene.width - 1) * scale;
-            y = 1-(2*float(j+0.5f) / float(scene.height)) * scale;
+            float x = (2 * (i + 0.5f) / scene.width - 1) * imageAspectRatio * T_eyefor;
+            float y = -(2 * (j + 0.5f) / scene.height - 1) * T_eyefor;
+            
+            // ① 实际屏幕点的位置（以相机为中心点0,0,0， 其所视方向为-z）
+            // float X = x * scene.height / 2;
+            // float Y = y / 2;
+            // float Z = -scene.height / 2;
 
+            // ② 最终是为了求方向 Primary Ray
             Vector3f dir = Vector3f(x, y, -1); // Don't forget to normalize this direction!
-            framebuffer[m++] = castRay(eye_pos, dir, scene, 0);
+            framebuffer[m++] = castRay(eye_pos, normalize(dir), scene, 0);
         }
         UpdateProgress(j / (float)scene.height);
     }
