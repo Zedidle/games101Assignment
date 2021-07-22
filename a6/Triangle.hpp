@@ -89,6 +89,7 @@ public:
         Vector3f max_vert = Vector3f{-std::numeric_limits<float>::infinity(),
                                      -std::numeric_limits<float>::infinity(),
                                      -std::numeric_limits<float>::infinity()};
+        // 找到当前Mesh的包围盒, 且确定该Mesh有多少三角形并为这些三角形建立BVH；
         for (int i = 0; i < mesh.Vertices.size(); i += 3) {
             std::array<Vector3f, 3> face_vertices;
             for (int j = 0; j < 3; j++) {
@@ -105,15 +106,13 @@ public:
                                     std::max(max_vert.z, vert.z));
             }
 
-            auto new_mat =
-                new Material(MaterialType::DIFFUSE_AND_GLOSSY,
-                             Vector3f(0.5, 0.5, 0.5), Vector3f(0, 0, 0));
+            auto new_mat = new Material(MaterialType::DIFFUSE_AND_GLOSSY,
+                            Vector3f(0.5, 0.5, 0.5), Vector3f(0, 0, 0));
             new_mat->Kd = 0.6;
             new_mat->Ks = 0.0;
             new_mat->specularExponent = 0;
 
-            triangles.emplace_back(face_vertices[0], face_vertices[1],
-                                   face_vertices[2], new_mat);
+            triangles.emplace_back(face_vertices[0], face_vertices[1], face_vertices[2], new_mat);
         }
 
         bounding_box = Bounds3(min_vert, max_vert);
@@ -122,7 +121,7 @@ public:
         for (auto& tri : triangles)
             ptrs.push_back(&tri);
 
-        bvh = new BVHAccel(ptrs);
+        bvh = new BVHAccel(ptrs); // 所以一个MeshTriangle内部就有一个BVH
     }
 
     bool intersect(const Ray& ray) { return true; }

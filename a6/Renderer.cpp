@@ -29,8 +29,7 @@ void Renderer::Render(const Scene& scene)
         for (uint32_t i = 0; i < scene.width; ++i) {
             float x = (2 * (i + 0.5) / scene.width - 1.0f) * imageAspectRatio * scale;
             float y = -(2 * (j + 0.5) / scene.height - 1.0f) * scale;
-            Vector3f dir = Vector3f(x, y, -1);
-            dir = normalize(dir);
+            Vector3f dir = Vector3f(x, y, -1); // 已经是单位向量，仅表示方向
             framebuffer[m++] = scene.castRay(Ray(eye_pos, dir), 0);
         }
         UpdateProgress(j / (float)scene.height);
